@@ -18,9 +18,7 @@ MDD_Challenge/
 │   └── main.py           # Entry point (train + eval)
 ├── MDD-Metrics/          # Official evaluation script (F1, DER, PER)
 ├── mdd-train.ipynb       # Colab notebook
-├── outputs/              # Checkpoints, vocab, predictions
-├── requirements.txt
-└── AGENTS.md
+└── outputs/              # Checkpoints, vocab, predictions
 ```
 
 ## Cài đặt
@@ -31,14 +29,30 @@ pip install -r requirements.txt
 
 ## Sử dụng
 
-### 1. Train model
+### 1. Train model (local)
 
 ```bash
 cd MDD_Challenge
 python -m src.main
 ```
 
-### 2. Inference (test set)
+### 2. Train model (Google Colab)
+
+Mở `mdd-train.ipynb` trong Colab, chạy lần lượt các cell:
+
+| Cell | Mô tả |
+|------|-------|
+| 1 | Mount Google Drive |
+| 2 | `cd` vào thư mục dự án |
+| 3 | Cài đặt dependencies |
+| 4 | Train model (`python src/main.py`) |
+| 5 | Inference public test |
+| 6 | Evaluation |
+| 7 | Inference private test |
+
+Đảm bảo dữ liệu đã được upload lên Google Drive đúng cấu trúc.
+
+### 3. Inference (test set)
 
 ```bash
 python -m src.inference \
@@ -47,11 +61,38 @@ python -m src.inference \
     --output predictions.csv
 ```
 
-### 3. Evaluation
+### 4. Evaluation
 
 ```bash
 python MDD-Metrics/evaluate.py ground_truth.csv results.csv
 ```
+
+## Cấu trúc dữ liệu
+
+Dữ liệu cần có cấu trúc như sau (có thể copy từ challenge):
+
+```
+MDD-Challenge-2025-training-set/
+├── metadata/
+│   ├── train.csv              # Câu readable
+│   ├── train_phones.csv       # Câu dạng âm vị
+│   └── lexicon_vmd.txt        # Từ điển phát âm
+└── audio_data/
+    └── train/                 # File .wav
+        ├── sample1.wav
+        └── ...
+```
+
+### Thêm dữ liệu mới
+
+1. Thêm file `.wav` vào `audio_data/train/`
+2. Thêm dòng tương ứng vào `metadata/train_phones.csv` với các cột:
+   - `id`: định danh mẫu
+   - `path`: đường dẫn file `.wav`
+   - `canonical`: phát âm chuẩn (dạng âm vị, cách nhau bởi space, từ cách bởi `$`)
+   - `transcript`: phát âm thực tế (dạng âm vị)
+3. Cập nhật `data_root` trong `src/config.py` nếu thư mục khác tên
+4. Chạy lại `python -m src.main`
 
 ## Kiến trúc model
 
